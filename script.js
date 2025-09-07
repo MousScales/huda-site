@@ -271,13 +271,97 @@ function trackEvent(eventName, properties = {}) {
     }
 }
 
-// Track download button clicks
+// Download button click counter
+let downloadClickCount = 0;
+let downloadLinkFollowCount = 0;
+
+// Store counts in localStorage for persistence
+function updateDownloadCounts() {
+    const stored = localStorage.getItem('hudaDownloadStats');
+    if (stored) {
+        const stats = JSON.parse(stored);
+        downloadClickCount = stats.clicks || 0;
+        downloadLinkFollowCount = stats.follows || 0;
+    }
+}
+
+function saveDownloadCounts() {
+    localStorage.setItem('hudaDownloadStats', JSON.stringify({
+        clicks: downloadClickCount,
+        follows: downloadLinkFollowCount,
+        lastUpdated: new Date().toISOString()
+    }));
+}
+
+// Initialize counts on page load
+updateDownloadCounts();
+
+// Function to display download stats (for debugging)
+function displayDownloadStats() {
+    console.log('📊 Huda Download Stats:');
+    console.log(`Total Button Clicks: ${downloadClickCount}`);
+    console.log(`Total Link Follows: ${downloadLinkFollowCount}`);
+    console.log(`Conversion Rate: ${downloadClickCount > 0 ? ((downloadLinkFollowCount / downloadClickCount) * 100).toFixed(2) : 0}%`);
+    return {
+        clicks: downloadClickCount,
+        follows: downloadLinkFollowCount,
+        conversionRate: downloadClickCount > 0 ? ((downloadLinkFollowCount / downloadClickCount) * 100).toFixed(2) : 0
+    };
+}
+
+// Make stats available globally for debugging
+window.hudaStats = displayDownloadStats;
+
+// Enhanced download button tracking
 document.querySelectorAll('.btn-primary, .btn-download').forEach(button => {
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function(e) {
+        const buttonText = this.textContent.trim();
+        const location = this.closest('section')?.className || 'unknown';
+        const timestamp = new Date().toISOString();
+        const userAgent = navigator.userAgent;
+        const referrer = document.referrer;
+        
+        // Increment click counter
+        downloadClickCount++;
+        saveDownloadCounts();
+        
+        // Track the click event
         trackEvent('Download Button Clicked', {
-            buttonText: this.textContent.trim(),
-            location: this.closest('section')?.className || 'unknown'
+            buttonText: buttonText,
+            location: location,
+            timestamp: timestamp,
+            userAgent: userAgent,
+            referrer: referrer,
+            url: this.href || 'no-href',
+            totalClicks: downloadClickCount
         });
+        
+        // Additional tracking for App Store link specifically
+        if (this.href && this.href.includes('apps.apple.com')) {
+            trackEvent('App Store Link Clicked', {
+                buttonText: buttonText,
+                location: location,
+                timestamp: timestamp,
+                appStoreUrl: this.href,
+                totalClicks: downloadClickCount
+            });
+        }
+        
+        // Track if user actually follows the link (not prevented)
+        setTimeout(() => {
+            if (!e.defaultPrevented) {
+                downloadLinkFollowCount++;
+                saveDownloadCounts();
+                
+                trackEvent('Download Link Followed', {
+                    buttonText: buttonText,
+                    location: location,
+                    timestamp: timestamp,
+                    destination: this.href,
+                    totalFollows: downloadLinkFollowCount
+                });
+            }
+        }, 100);
     });
 });
 
