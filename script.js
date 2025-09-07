@@ -264,3 +264,61 @@ mobileMenuStyle.textContent = `
 `;
 document.head.appendChild(mobileMenuStyle); 
 
+// Analytics tracking
+function trackEvent(eventName, properties = {}) {
+    if (typeof window.va !== 'undefined') {
+        window.va('track', eventName, properties);
+    }
+}
+
+// Track download button clicks
+document.querySelectorAll('.btn-primary, .btn-download').forEach(button => {
+    button.addEventListener('click', function() {
+        trackEvent('Download Button Clicked', {
+            buttonText: this.textContent.trim(),
+            location: this.closest('section')?.className || 'unknown'
+        });
+    });
+});
+
+// Track scroll to features section
+const featuresSection = document.querySelector('.features');
+if (featuresSection) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                trackEvent('Features Section Viewed');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    observer.observe(featuresSection);
+}
+
+// Track creator section view
+const creatorSection = document.querySelector('.about-creator');
+if (creatorSection) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                trackEvent('Creator Section Viewed');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    observer.observe(creatorSection);
+}
+
+// Track social media clicks
+document.querySelectorAll('a[href*="instagram"], a[href*="tiktok"]').forEach(link => {
+    link.addEventListener('click', function() {
+        const platform = this.href.includes('instagram') ? 'Instagram' : 'TikTok';
+        trackEvent('Social Media Clicked', {
+            platform: platform,
+            url: this.href
+        });
+    });
+});
+
