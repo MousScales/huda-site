@@ -258,6 +258,13 @@ a:focus {
     transform: translateY(-4px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
     background: #111;
+    color: white !important;
+}
+
+.btn-primary:hover *,
+.btn-primary:hover span,
+.btn-primary:hover i {
+    color: white !important;
 }
 
 .btn-primary:active,
@@ -269,6 +276,28 @@ a:focus {
 
 .btn-primary:active *,
 .btn-primary:focus * {
+    color: white !important;
+}
+
+.btn-primary::selection,
+.btn-primary span::selection,
+.btn-primary i::selection {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-primary::-moz-selection,
+.btn-primary span::-moz-selection,
+.btn-primary i::-moz-selection {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Force white text on all states */
+.btn-primary,
+.btn-primary *,
+.btn-primary span,
+.btn-primary i {
     color: white !important;
 }
 
