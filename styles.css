@@ -260,6 +260,18 @@ a:focus {
     background: #111;
 }
 
+.btn-primary:active,
+.btn-primary:focus {
+    color: white !important;
+    background: #000;
+    transform: translateY(-2px);
+}
+
+.btn-primary:active *,
+.btn-primary:focus * {
+    color: white !important;
+}
+
 .btn-secondary {
     background: transparent;
     color: var(--primary-color) !important;
